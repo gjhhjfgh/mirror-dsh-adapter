@@ -24,7 +24,7 @@ node bin/mirror-doctor.mjs
 ```
 
 パッケージは DSH プロファイルの `node_modules` に配置され、依存は `file:./vendor/…` として記録されます（レジストリ不要）。
-[インストール手順](mirror_adapters/dsh/docs/INSTALL-GITHUB.en.md) · [FAQ](mirror_adapters/dsh/docs/FAQ.en.md)
+[インストール手順](docs/INSTALL-GITHUB.en.md) · [FAQ](docs/FAQ.en.md)
 
 ## 最小の使い方
 
@@ -47,8 +47,8 @@ node bin/mirror-doctor.mjs
 ## テスト
 
 ```powershell
-node mirror_adapters/dsh/tests/core.test.mjs
-# または: cd mirror_adapters/dsh && npm run test:all
+node /tests/core.test.mjs
+# または: cd  && npm run test:all
 ```
 
 261 項目、オフライン、サードパーティ依存ゼロ。

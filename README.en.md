@@ -1,9 +1,4 @@
 # Mirror — Memory Governance for AI Agents
-
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-![Node](https://img.shields.io/badge/node-%E2%89%A522.5-brightgreen)
-![DSH plugin](https://img.shields.io/badge/DSH-plugin-4d6bfe)
-![tests](https://img.shields.io/badge/tests-261%20passing-success)
 **中文** · [English](README.en.md) · [日本語](README.ja.md) · [Español](README.es.md)
 
 > Not "make AI remember more", but "make AI remember the **right** things, forget the wrong ones, and know **who wins** when sources disagree".
@@ -14,8 +9,6 @@ Mirror is a plugin for DSH (DeepSeek Harness): it distills conversations into a 
 - **Governed**: every memory has authority, confidence, scope and conflict relations; conflicts are yours to arbitrate — AI never silently overwrites
 - **Packable**: export a `.mirrorpack` (experiences carry boundaries and evidence)
 - **Measurable**: `quality.benchmark` checks whether each experience can be retrieved, with a baseline
-
-![30s demo](docs/demo.gif)
 
 ## Install (npm not required)
 
@@ -31,7 +24,7 @@ node bin/mirror-doctor.mjs
 ```
 
 The package is copied into the DSH profile's `node_modules`; the dependency is recorded as `file:./vendor/…`, so no registry is needed.
-See [install guide](mirror_adapters/dsh/docs/INSTALL-GITHUB.en.md) · [FAQ](mirror_adapters/dsh/docs/FAQ.en.md).
+See [install guide](docs/INSTALL-GITHUB.en.md) · [FAQ](docs/FAQ.en.md).
 
 ## Smallest useful loop
 
@@ -51,23 +44,17 @@ See [install guide](mirror_adapters/dsh/docs/INSTALL-GITHUB.en.md) · [FAQ](mirr
 | Safety | imported content framed as data, not instructions; suspicious packs rejected |
 | Ops | one-command install/doctor, backup & restore, diagnostics without content |
 
-## What it is not
-
-- Not chat memory: no cloud hosting, offline by default, no uploaded conversations
-- Not a model: no LLM calls required; connecting one is optional
-- Not a general-purpose plugin: DSH only for now
-
 ## Docs
 
-- Plugin reference: [mirror_adapters/dsh/README.md](mirror_adapters/dsh/README.md)
-- Install: [INSTALL-GITHUB](mirror_adapters/dsh/docs/INSTALL-GITHUB.en.md) · FAQ: [FAQ](mirror_adapters/dsh/docs/FAQ.en.md)
-- Changelog: [CHANGELOG](mirror_adapters/dsh/CHANGELOG.md)
+- Plugin reference: [docs/PLUGIN.md](docs/PLUGIN.md)
+- Install: [INSTALL-GITHUB](docs/INSTALL-GITHUB.en.md) · FAQ: [FAQ](docs/FAQ.en.md)
+- Changelog: [CHANGELOG](CHANGELOG.md)
 
 ## Tests
 
 ```powershell
-node mirror_adapters/dsh/tests/core.test.mjs
-# or: cd mirror_adapters/dsh && npm run test:all
+node /tests/core.test.mjs
+# or: cd  && npm run test:all
 ```
 
 261 checks, offline, zero third-party dependencies.

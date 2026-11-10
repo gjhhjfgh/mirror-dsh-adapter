@@ -21,5 +21,4 @@ node scripts/build-samples.mjs
 ```
 
 生成脚本会用**真实的包解析器**自校验（`packs.parse` + 试装），保证样例一定能被导入。
-
 > 许可：本示例包随仓库以 MIT 提供，可自由使用、修改与再分发。

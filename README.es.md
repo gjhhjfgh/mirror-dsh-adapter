@@ -24,7 +24,7 @@ node bin/mirror-doctor.mjs
 ```
 
 El paquete se copia a `node_modules` del perfil DSH y la dependencia queda como `file:./vendor/…`: no hace falta registro.
-Ver [guía de instalación](mirror_adapters/dsh/docs/INSTALL-GITHUB.en.md) · [FAQ](mirror_adapters/dsh/docs/FAQ.en.md).
+Ver [guía de instalación](docs/INSTALL-GITHUB.en.md) · [FAQ](docs/FAQ.en.md).
 
 ## Bucle mínimo
 
@@ -47,8 +47,8 @@ Ver [guía de instalación](mirror_adapters/dsh/docs/INSTALL-GITHUB.en.md) · [F
 ## Pruebas
 
 ```powershell
-node mirror_adapters/dsh/tests/core.test.mjs
-# o: cd mirror_adapters/dsh && npm run test:all
+node /tests/core.test.mjs
+# o: cd  && npm run test:all
 ```
 
 261 comprobaciones, sin conexión, sin dependencias de terceros.

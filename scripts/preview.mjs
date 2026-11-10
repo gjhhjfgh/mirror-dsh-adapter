@@ -1,7 +1,7 @@
 /**
  * 生成面板静态预览：docs/panel-preview.html
  *
- * 用真实的 lib/client.js + react-dom/server，把九个 Tab 各渲染一遍，套上模拟 DSH
+ * 用真实的 lib/client.js + react-dom/server，把七个 Tab 各渲染一遍，套上模拟 DSH
  * 深色主题的 CSS 变量，写成一个可以直接双击打开的 HTML。
  *
  * 用途：插件本体要等 dsh web 重启后才进 GUI，这份预览让人马上能看到面板长什么样
@@ -216,10 +216,10 @@ const memories = [
     content: "高并发场景禁用方案A（8 万 QPS 下丢单）",
     confidence: 0.95,
     authority: "imported",
-    sourceRef: "记忆包 · 支付系统红线 v1.2.0",
+    sourceRef: "记忆包 · 高并发安全基线 v1.2.0",
     packId: "pack_payment_redline",
     packVersion: "1.2.0",
-    tags: ["支付", "并发"],
+    tags: ["高并发", "稳定性"],
   }),
   memory({
     id: "m-pref-1",
@@ -341,7 +341,7 @@ const packs = [
     id: "p-1",
     packId: "pack_payment_redline",
     packVersion: "1.2.0",
-    packName: "支付系统安全红线",
+    packName: "高并发安全基线",
     author: "pay-team",
     installedAt: now - 9 * DAY,
     scope: "global",
@@ -433,11 +433,8 @@ const state = {
 const TABS = [
   ["iron_rule", "铁律"],
   ["preference", "偏好"],
-  ["decision", "决策"],
   ["pitfall", "踩坑"],
-  ["fuzzy", "模糊"],
   ["documents", "文档库"],
-  ["links", "关联"],
   ["packs", "记忆包"],
   ["pending", "待确认"],
   ["inject", "注入预览"],
@@ -547,7 +544,7 @@ ${styleNode.textContent}
 <body>
 <header class="preview-head">
   <h1>Mirror · 我对你的理解 — 面板静态预览</h1>
-  <p>用真实 <code>lib/client.js</code> + <code>react-dom/server</code> 渲染，九个 Tab 各一份，数据是演示用的假数据。</p>
+  <p>用真实 <code>lib/client.js</code> + <code>react-dom/server</code> 渲染，七个 Tab 各一份，数据是演示用的假数据。</p>
   <p class="preview-note">真实插件装进 DSH 后，这个面板出现在中央列，入口是左侧栏的 Mirror 图标；样式变量由宿主主题注入，这里用近似的深色值模拟。</p>
   <nav class="preview-nav">
     ${TABS.map(([tab, label]) => `<a href="#tab-${tab}">${label}</a>`).join("\n    ")}

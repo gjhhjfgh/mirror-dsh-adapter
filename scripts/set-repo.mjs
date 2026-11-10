@@ -10,7 +10,9 @@ import { fileURLToPath } from 'node:url'
 
 const HERE = path.dirname(fileURLToPath(import.meta.url))
 const ROOT = path.resolve(HERE, '..')
-const REPO_ROOT = path.resolve(ROOT, '..', '..')
+const REPO_ROOT = fs.existsSync(path.join(ROOT, '.git')) ? ROOT : path.resolve(ROOT, "..", "..")
+const PLUGIN_ROOT = ROOT
+
 
 const TARGETS = [
   path.join(REPO_ROOT, 'README.md'),

@@ -1,6 +1,6 @@
 {
   "name": "mirror-dsh-adapter",
-  "version": "2.2.3",
+  "version": "2.3.0",
   "description": "Mirror · AI 认知治理层的 DSH 插件：本地记忆内核 + 文档库 + 记忆包 + 逐轮注入，带左侧栏入口的 Web 面板。",
   "type": "module",
   "main": "lib/index.js",

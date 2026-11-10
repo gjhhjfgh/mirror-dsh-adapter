@@ -15,7 +15,8 @@ import { fileURLToPath } from 'node:url'
 
 const HERE = path.dirname(fileURLToPath(import.meta.url))
 const PLUGIN_ROOT = path.resolve(HERE, '..')
-const REPO_ROOT = path.resolve(PLUGIN_ROOT, '..', '..')
+const REPO_ROOT = fs.existsSync(path.join(PLUGIN_ROOT, '.git')) ? PLUGIN_ROOT : path.resolve(PLUGIN_ROOT, "..", "..")
+
 const ROOT = PLUGIN_ROOT
 
 function parseArgs(argv) {

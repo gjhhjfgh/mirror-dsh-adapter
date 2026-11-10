@@ -15,6 +15,7 @@ const REPO_ROOT = path.resolve(ROOT, '..', '..')
 const TARGETS = [
   path.join(REPO_ROOT, 'README.md'),
   path.join(ROOT, 'README.md'),
+  path.join(ROOT, 'package.json'),
   path.join(ROOT, 'docs', 'INSTALL-GITHUB.md'),
   path.join(ROOT, 'docs', 'FAQ.md'),
 ]

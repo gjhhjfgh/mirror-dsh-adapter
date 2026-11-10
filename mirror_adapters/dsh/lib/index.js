@@ -16,7 +16,7 @@
 import os from "node:os";
 import path from "node:path";
 
-const VERSION = "2.2.2";
+const VERSION = "2.2.3";
 /** 注入 section 的排序：早于 first-party 的 persona 尾巴。 */
 const SECTION_ORDER = 9500;
 const DEFAULT_DATA_DIR = path.join(os.homedir(), ".mirror");

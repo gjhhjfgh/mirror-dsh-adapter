@@ -1016,6 +1016,15 @@ await check("记忆卡片操作按钮常显低对比（可发现 + 语义分组�
   assertIncludes(exports.__internals.CSS, "@media (hover:none){.mrp-card-actions{opacity:1", "触屏常显");
 });
 
+await check("文档库长列表不被 flex 压缩（否则行被压扁、内容被裁掉）", () => {
+  const css = exports.__internals.CSS;
+  assert(/\.mrp-doc\{[^}]*flex:0 0 auto/.test(css), "文档行必须 flex:0 0 auto，避免在 max-height 容器里被压缩");
+  assert(/\.mrp-doc-list\{[^}]*padding:2px 0/.test(css), "文档列表顶部要留白，首行不被裁切");
+  const source = fs.readFileSync(new URL("../lib/client.js", import.meta.url), "utf8");
+  assert(!source.includes("projects\\\\myapp"), "占位文案不要写成真实路径的样子");
+  assert(!source.includes("D:\\\\packs\\\\nextjs15"), "记忆包占位文案同样不能像真实路径");
+});
+
 await check("Tab 键盘导航：ArrowRight/Left/Home/End + roving tabIndex", () => {
   const move = exports.__internals.moveTab;
   assertEqual(move("iron_rule", "ArrowRight"), "preference", "ArrowRight 到下一个");

@@ -15,8 +15,8 @@ Mirror is a plugin for DSH (DeepSeek Harness): it distills conversations into a 
 - **Packable**: export a `.mirrorpack` (experiences carry boundaries and evidence)
 - **Measurable**: `quality.benchmark` checks whether each experience can be retrieved, with a baseline
 
-<!-- after recording the 30s demo, commit docs/demo.gif and uncomment the next line -->
-<!-- ![30s demo](docs/demo.gif) -->
+![30s demo](docs/demo.gif)
+
 ## Install (npm not required)
 
 ```powershell

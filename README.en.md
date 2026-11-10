@@ -1,4 +1,9 @@
 # Mirror — Memory Governance for AI Agents
+
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+![Node](https://img.shields.io/badge/node-%E2%89%A522.5-brightgreen)
+![DSH plugin](https://img.shields.io/badge/DSH-plugin-4d6bfe)
+![tests](https://img.shields.io/badge/tests-261%20passing-success)
 **中文** · [English](README.en.md) · [日本語](README.ja.md) · [Español](README.es.md)
 
 > Not "make AI remember more", but "make AI remember the **right** things, forget the wrong ones, and know **who wins** when sources disagree".
@@ -10,6 +15,8 @@ Mirror is a plugin for DSH (DeepSeek Harness): it distills conversations into a 
 - **Packable**: export a `.mirrorpack` (experiences carry boundaries and evidence)
 - **Measurable**: `quality.benchmark` checks whether each experience can be retrieved, with a baseline
 
+<!-- after recording the 30s demo, commit docs/demo.gif and uncomment the next line -->
+<!-- ![30s demo](docs/demo.gif) -->
 ## Install (npm not required)
 
 ```powershell
@@ -43,6 +50,12 @@ See [install guide](mirror_adapters/dsh/docs/INSTALL-GITHUB.en.md) · [FAQ](mirr
 | Retrieval | FTS5 + character n-gram vectors + RRF, fully offline |
 | Safety | imported content framed as data, not instructions; suspicious packs rejected |
 | Ops | one-command install/doctor, backup & restore, diagnostics without content |
+
+## What it is not
+
+- Not chat memory: no cloud hosting, offline by default, no uploaded conversations
+- Not a model: no LLM calls required; connecting one is optional
+- Not a general-purpose plugin: DSH only for now
 
 ## Docs
 

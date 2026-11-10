@@ -15,8 +15,8 @@ Mirror 是 DSH（DeepSeek Harness）的插件：把对话蒸馏成结构化「�
 - **可打包**：画像可导出为 `.mirrorpack`（含经验的边界与证据）
 - **可验证**：`quality.benchmark` 用每条经验反查自己能否被召回，并给出对照
 
-<!-- 录好 30 秒演示后，把 docs/demo.gif 提交进来并取消下一行注释 -->
-<!-- ![30 秒演示](docs/demo.gif) -->
+![30 秒演示](docs/demo.gif)
+
 ## 安装（不需要 npm）
 
 ```powershell

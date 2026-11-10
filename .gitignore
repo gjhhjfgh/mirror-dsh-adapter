@@ -1,0 +1,28 @@
+# 依赖与构建产物
+node_modules/
+dist/
+*.tgz
+*.log
+
+# 本地数据（绝对不要提交）
+mirror.db
+mirror.db-*
+backups/
+diagnostics/
+sessions/
+exports/
+*.mirrorpack.bak
+
+# 编辑器 / 系统
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# 本地预览产物（可重新生成）
+mirror_adapters/dsh/docs/panel-preview.html
+
+# 发布用临时目录（仅本机）
+_publish/
+_prep-publish.mjs
+_scan.mjs

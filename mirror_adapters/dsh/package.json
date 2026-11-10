@@ -1,0 +1,86 @@
+{
+  "name": "mirror-dsh-adapter",
+  "version": "2.2.2",
+  "description": "Mirror · AI 认知治理层的 DSH 插件：本地记忆内核 + 文档库 + 记忆包 + 逐轮注入，带左侧栏入口的 Web 面板。",
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "core",
+    "bin",
+    "samples",
+    "docs",
+    "cordis.patch.yml",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-client-ui-slots",
+        "@deepseek-ai/dsh-client-ui-layout",
+        "@deepseek-ai/dsh-client-ui-sidebar",
+        "@deepseek-ai/dsh-client-ui-theme"
+      ]
+    }
+  },
+  "engines": {
+    "node": ">=22.5"
+  },
+  "scripts": {
+    "test": "node tests/core.test.mjs",
+    "test:host": "node tests/host-integration.mjs",
+    "test:client": "node tests/client-smoke.mjs",
+    "test:resident": "node tests/resident.test.mjs && node tests/ingest.test.mjs",
+    "test:ingest": "node tests/ingest.test.mjs",
+    "test:all": "node tests/core.test.mjs && node tests/host-integration.mjs && node tests/client-smoke.mjs && node tests/panel-state.test.mjs && node tests/resident.test.mjs && node tests/ingest.test.mjs && node tests/memorypack.test.mjs && node tests/dsh-sessions.test.mjs && node tests/governance-conflict.test.mjs && node tests/capture-capacity.test.mjs && node tests/quality.test.mjs && node tests/authority-autodistill.test.mjs && node tests/search-vector-benchmark.test.mjs && node tests/install-doctor.test.mjs && node tests/backup-diagnostics.test.mjs",
+    "sync": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/sync.ps1",
+    "verify": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/verify.ps1",
+    "test:capture": "node tests/memorypack.test.mjs",
+    "test:dsh-sessions": "node tests/dsh-sessions.test.mjs",
+    "test:governance": "node tests/governance-conflict.test.mjs",
+    "test:capture-capacity": "node tests/capture-capacity.test.mjs",
+    "test:quality": "node tests/quality.test.mjs",
+    "test:authority": "node tests/authority-autodistill.test.mjs",
+    "test:search": "node tests/search-vector-benchmark.test.mjs",
+    "doctor": "node bin/mirror-doctor.mjs",
+    "install:plugin": "node bin/mirror-install.mjs",
+    "samples": "node scripts/build-samples.mjs",
+    "test:install": "node tests/install-doctor.test.mjs",
+    "test:backup": "node tests/backup-diagnostics.test.mjs",
+    "release": "node scripts/make-release.mjs",
+    "publish:github": "node scripts/publish-github.mjs",
+    "set-repo": "node scripts/set-repo.mjs"
+  },
+  "license": "MIT",
+  "bin": {
+    "mirror-install": "bin/mirror-install.mjs",
+    "mirror-doctor": "bin/mirror-doctor.mjs"
+  },
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "memory",
+    "memory-governance",
+    "ai-memory",
+    "sqlite",
+    "fts5",
+    "local-first"
+  ],
+  "homepage": "https://github.com/mirror-local/mirror-dsh-adapter",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mirror-local/mirror-dsh-adapter.git"
+  }
+}

@@ -1,0 +1,21 @@
+# Mirror bundle 层：向基础 profile 插入一行插件。
+# 用户可在自己的 cordis.patch.yml 里按 id=mirror-memory 覆盖下列 config。
+#
+# config 字段：
+#   dataDir           Mirror 数据目录（默认 ~/.mirror）
+#   injectTokenBudget 每轮注入的 token 上限（默认 3000，硬上限 8000）
+#   residentPreferences 常驻偏好条数（默认 3；0=关闭）：不管本轮问题是否命中，都带 top N 条偏好/决策
+#   injectScope       逐轮注入的作用域：all（默认，全局 + 各项目记忆一起注入）/
+#                     global（只注入全局记忆）/ 或某个具体作用域 project:<名称>
+#   autoExtract       每轮结束是否自动抽取记忆（默认 false；开启后走本地启发式抽取）
+#   docAutoScan       每次面板/工具查询前是否自动增量扫描已索引目录（默认 true）
+- insert:
+    - id: mirror-memory
+      name: 'mirror-dsh-adapter'
+      config:
+        dataDir: ''
+        injectTokenBudget: 3000
+        injectScope: 'all'
+        residentPreferences: 3
+        autoExtract: false
+        docAutoScan: true

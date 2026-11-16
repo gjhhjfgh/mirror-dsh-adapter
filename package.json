@@ -1,6 +1,6 @@
 {
   "name": "mirror-dsh-adapter",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "description": "Mirror · AI 认知治理层的 DSH 插件：本地记忆内核 + 文档库 + 记忆包 + 逐轮注入，带左侧栏入口的 Web 面板。",
   "type": "module",
   "main": "lib/index.js",
@@ -44,7 +44,7 @@
     "test:client": "node tests/client-smoke.mjs",
     "test:resident": "node tests/resident.test.mjs && node tests/ingest.test.mjs",
     "test:ingest": "node tests/ingest.test.mjs",
-    "test:all": "node tests/core.test.mjs && node tests/host-integration.mjs && node tests/client-smoke.mjs && node tests/panel-state.test.mjs && node tests/resident.test.mjs && node tests/ingest.test.mjs && node tests/memorypack.test.mjs && node tests/dsh-sessions.test.mjs && node tests/governance-conflict.test.mjs && node tests/capture-capacity.test.mjs && node tests/quality.test.mjs && node tests/authority-autodistill.test.mjs && node tests/search-vector-benchmark.test.mjs && node tests/install-doctor.test.mjs && node tests/backup-diagnostics.test.mjs",
+    "test:all": "node tests/core.test.mjs && node tests/host-integration.mjs && node tests/client-smoke.mjs && node tests/panel-state.test.mjs && node tests/resident.test.mjs && node tests/ingest.test.mjs && node tests/memorypack.test.mjs && node tests/dsh-sessions.test.mjs && node tests/governance-conflict.test.mjs && node tests/capture-capacity.test.mjs && node tests/quality.test.mjs && node tests/quality-gate.test.mjs && node tests/authority-autodistill.test.mjs && node tests/search-vector-benchmark.test.mjs && node tests/install-doctor.test.mjs && node tests/backup-diagnostics.test.mjs",
     "sync": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/sync.ps1",
     "verify": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/verify.ps1",
     "test:capture": "node tests/memorypack.test.mjs",

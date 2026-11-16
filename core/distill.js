@@ -13,6 +13,8 @@
  * 隐私边界：记忆包里只放 profile，**不包含原始对话**。
  */
 
+import { QUALITY_ACCEPT, QUALITY_MIN, scoreCandidate, summarize } from './quality.js'
+
 export const DISTILL_PROMPT = `你是 Mirror 的记忆蒸馏器。把下面的对话提炼成一份「这个人的认知画像」，供其他人的 AI 加载后按他的方式工作。
 
 ## 只提炼判断依据，不要提炼事实
@@ -267,13 +269,28 @@ export function sanitizeProfile(input) {
     profile: clean(profile.profile, 'profile'),
     confidence: Number(profile.confidence) || 0.6,
   }
+  /** 与各列表下标对齐的质量判定（面板展示分数与理由用）。 */
+  result.quality = {}
+  const verdicts = []
   for (const key of LIST_KEYS) {
     result[key] = []
+    result.quality[key] = []
     const list = Array.isArray(profile[key]) ? profile[key] : []
     list.forEach((item, itemIndex) => {
       const kept = keep(item)
-      if (kept) result[key].push(clean(kept, key, itemIndex))
-      else dropped.push({ field: key, itemIndex, text: String(item).slice(0, 120) })
+      if (!kept) {
+        dropped.push({ field: key, itemIndex, text: String(item).slice(0, 120), reason: '空或泛化' })
+        return
+      }
+      const cleaned = clean(kept, key, itemIndex)
+      const quality = scoreCandidate(cleaned)
+      verdicts.push(quality)
+      if (quality.label === 'reject') {
+        dropped.push({ field: key, itemIndex, text: String(item).slice(0, 120), reason: quality.reason })
+        return
+      }
+      result[key].push(cleaned)
+      result.quality[key].push(quality)
     })
   }
   result.experiences = []
@@ -287,6 +304,17 @@ export function sanitizeProfile(input) {
         field: 'experiences',
         itemIndex,
         text: `${item?.trigger ?? ''} → ${item?.action ?? ''}`.slice(0, 120),
+      })
+      return
+    }
+    const quality = scoreCandidate(`${triggerRaw} → ${actionRaw}`)
+    verdicts.push(quality)
+    if (quality.label === 'reject') {
+      dropped.push({
+        field: 'experiences',
+        itemIndex,
+        text: `${triggerRaw} → ${actionRaw}`.slice(0, 120),
+        reason: quality.reason,
       })
       return
     }
@@ -307,12 +335,14 @@ export function sanitizeProfile(input) {
       evidence: item?.evidence ? clean(item.evidence, field, itemIndex) : '',
       since: item?.since ? clean(item.since, field, itemIndex) : '',
       confidence,
+      quality,
     })
   })
   // rules 是"硬约束"，没有证据支撑时不要给到铁律级的置信度（供 profileToMemories 使用）
   result.ruleCap = Number(result.confidence) >= 0.75 ? 0.85 : 0.75
   const redacted = [...redactedCount.entries()].map(([label, count]) => ({ label, count }))
-  return { profile: result, dropped, redacted, redactions }
+  result.qualitySummary = summarize(verdicts)
+  return { profile: result, dropped, redacted, redactions, quality: result.qualitySummary }
 }
 
 
@@ -320,22 +350,28 @@ export function sanitizeProfile(input) {
  * 把 profile 映射成待写入的记忆（分类沿用五类体系）。
  * @returns {{category: string, content: string, layer?: string, confidence?: number, tags?: string}[]}
  */
-export function profileToMemories(profile, { sourceTag = 'distill' } = {}) {
+export function profileToMemories(profile, { sourceTag = 'distill', minQuality = QUALITY_MIN } = {}) {
   if (!profile) return []
   const out = []
-  const add = (category, content, layer, confidence, structured = null) => {
+  const qualityOf = (key, index) => profile?.quality?.[key]?.[index] ?? null
+  const add = (category, content, layer, confidence, quality = null, structured = null) => {
     const text = String(content ?? '').trim()
     if (!text) return
-    const draft = { category, content: text, layer, confidence, tags: `${sourceTag},蒸馏` }
-    if (structured) draft.structured = structured
+    if (quality && Number(quality.score) < minQuality) return
+    const label = quality ? (quality.label === 'accept' ? '高' : '中') : ''
+    const tags = [sourceTag, '蒸馏', label ? `质量${label}` : ''].filter(Boolean).join(',')
+    const draft = { category, content: text, layer, confidence, tags }
+    const payload = { ...(structured ?? {}) }
+    if (quality) payload.quality = { score: quality.score, label: quality.label, reason: quality.reason }
+    if (Object.keys(payload).length > 0) draft.structured = payload
     out.push(draft)
   }
-  for (const item of profile.rules || []) add('iron_rule', item, 'fact', Number(profile.ruleCap) || 0.85)
-  for (const item of profile.avoid || []) add('pitfall', `避免：${item}`, 'strategy', 0.85)
-  for (const item of profile.preferences || []) add('preference', item, 'strategy', 0.85)
-  for (const item of profile.patterns || []) add('decision', item, 'strategy', 0.8)
-  for (const item of profile.skills || []) add('preference', `擅长：${item}`, 'fragment', 0.7)
-  if (profile.profile) add('fuzzy', `画像：${profile.profile}`, 'fragment', 0.6)
+  ;(profile.rules || []).forEach((item, index) => add('iron_rule', item, 'fact', Number(profile.ruleCap) || 0.85, qualityOf('rules', index)))
+  ;(profile.avoid || []).forEach((item, index) => add('pitfall', `避免：${item}`, 'strategy', 0.85, qualityOf('avoid', index)))
+  ;(profile.preferences || []).forEach((item, index) => add('preference', item, 'strategy', 0.85, qualityOf('preferences', index)))
+  ;(profile.patterns || []).forEach((item, index) => add('decision', item, 'strategy', 0.8, qualityOf('patterns', index)))
+  ;(profile.skills || []).forEach((item, index) => add('preference', `擅长：${item}`, 'fragment', 0.7, qualityOf('skills', index)))
+  if (profile.profile) add('fuzzy', `画像：${profile.profile}`, 'fragment', 0.6, null)
 
   // 经验条目：内容用「情境 → 做法」压缩成一句，完整结构放 structured，检索/展示都用得上
   for (const experience of profile.experiences || []) {
@@ -343,6 +379,9 @@ export function profileToMemories(profile, { sourceTag = 'distill' } = {}) {
     const action = String(experience?.action ?? '').trim()
     if (!trigger || !action) continue
     const boundary = String(experience?.boundary ?? '').trim()
+    const quality = experience?.quality ?? null
+    // 经验条目比列表规则更值钱：复核档也保留，低于复核档才丢
+    if (quality && Number(quality.score) < Math.min(minQuality, QUALITY_MIN)) continue
     const content = `${trigger} → ${action}${boundary ? `（边界：${boundary}）` : ''}`
     // 带"必须/禁止"的经验按铁律处理；带"不要/避免"按踩坑；其余算决策（情境判断）
     const category = /必须|禁止|绝不能|一律/.test(action)
@@ -350,15 +389,22 @@ export function profileToMemories(profile, { sourceTag = 'distill' } = {}) {
       : /不要|别用|避免/.test(action)
         ? 'pitfall'
         : 'decision'
-    add(category, content, 'strategy', Number.isFinite(Number(experience.confidence)) ? Number(experience.confidence) : 0.8, {
-      kind: 'experience',
-      trigger,
-      action,
-      why: String(experience?.why ?? '').trim(),
-      boundary,
-      evidence: String(experience?.evidence ?? '').trim(),
-      since: String(experience?.since ?? '').trim(),
-    })
+    add(
+      category,
+      content,
+      'strategy',
+      Number.isFinite(Number(experience.confidence)) ? Number(experience.confidence) : 0.8,
+      quality,
+      {
+        kind: 'experience',
+        trigger,
+        action,
+        why: String(experience?.why ?? '').trim(),
+        boundary,
+        evidence: String(experience?.evidence ?? '').trim(),
+        since: String(experience?.since ?? '').trim(),
+      },
+    )
   }
   return out
 }

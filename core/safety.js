@@ -24,7 +24,7 @@ const INJECTION_PATTERNS = [
 /**
  * 扫描一段外部文本是否含指令注入样式。
  * @param {string} text
- * @returns {{suspect: boolean, hits: {id: string, snippet: string}[]}}
+ * @returns object with suspect:boolean and hits:[{id, snippet}]
  */
 export function scanUntrusted(text) {
   const content = String(text ?? '')
@@ -60,7 +60,7 @@ export const UNTRUSTED_NOTE = '> 注：标 [外部导入] 的条目来自记忆�
 
 /**
  * 把 profile（可能来自外部包）里的所有可注入文本拼起来做一次扫描。
- * @returns {{suspect: boolean, hits: object[]}}
+ * @returns object with suspect:boolean and hits:object[]
  */
 export function scanProfile(profile) {
   if (!profile || typeof profile !== 'object') return { suspect: false, hits: [] }

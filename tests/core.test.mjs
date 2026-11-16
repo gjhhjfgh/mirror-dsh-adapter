@@ -473,10 +473,16 @@ runCase('文档扫描：忽略 node_modules / .mirrorignore，扫描上限与列
       // q 只过滤文件路径（内容检索走 search）
       assert.equal(m.documents.list({ q: 'keep' }).length, 1)
       assert.equal(m.documents.list({ q: '不存在的文件名' }).length, 0)
-      // roots 增删：remove 只解除监听，不删 document 记录
+      // roots 增删：默认移除目录时连带删除该目录的文档（避免继续被检索/注入）
       const afterRemove = m.documents.removeRoot(root)
       assert.equal(afterRemove.length, 0)
-      assert.equal(m.documents.list().length, 1)
+      assert.equal(m.documents.list().length, 0)
+      // 需要保留记录时显式 keepDocuments
+      m.documents.addRoot(root)
+      m.documents.scan({ force: true })
+      assert.ok(m.documents.list().length >= 1)
+      m.documents.removeRoot(root, { keepDocuments: true })
+      assert.ok(m.documents.list().length >= 1)
       // 再添加回来（addRoot 幂等）
       m.documents.addRoot(root)
       assert.equal(m.documents.listRoots().length, 1)

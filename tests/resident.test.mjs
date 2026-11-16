@@ -99,6 +99,29 @@ check('常驻偏好不重复计入 query 命中', () => {
   assert.equal(ids.length, new Set(ids).size, '偏好层出现重复记忆')
 })
 
+// scope=all 时，项目作用域的记忆只在查询提到该项目时注入，避免污染别的项目
+memories.create({
+  category: 'iron_rule',
+  content: '插件面板改动后必须重启 dsh web 才能生效',
+  authority: 'user_explicit',
+  confidence: 1,
+  scope: 'project:mirror-plugin',
+})
+const projectMemory = memories.list({ status: 'active', scope: 'project:mirror-plugin' })[0]
+assert.ok(projectMemory, '项目记忆应创建成功')
+
+check('项目作用域记忆：查询无关时不注入', () => {
+  const result = retrieve({ memories, documents, query: 'Godot 角色移动怎么改', scope: 'all', tokenBudget: 3000, residentPreferences: 0 })
+  const ids = [...result.ironRules, ...result.preferences, ...result.decisions].map((m) => m.id)
+  assert.ok(!ids.includes(projectMemory.id), '无关查询不应注入项目记忆')
+})
+
+check('项目作用域记忆：查询提到项目时注入', () => {
+  const result = retrieve({ memories, documents, query: 'mirror-plugin 面板怎么改', scope: 'all', tokenBudget: 3000, residentPreferences: 0 })
+  const ids = [...result.ironRules, ...result.preferences, ...result.decisions].map((m) => m.id)
+  assert.ok(ids.includes(projectMemory.id), '提到项目时应注入项目记忆')
+})
+
 mirror.store.close()
 
 const failed = results.filter((ok) => !ok).length

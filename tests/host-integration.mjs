@@ -204,6 +204,7 @@ check("注册了 HTTP 路由", () => {
 
 check("注册了系统提示 section", () => {
   assert.equal(sections.length, 1);
+  assert.equal(sections[0].interpolate, false, "Retrieved document braces must remain literal");
   assert.equal(typeof sections[0].text, "function");
   assert.equal(typeof sections[0].text({}), "string");
 });

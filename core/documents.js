@@ -39,6 +39,11 @@ const IGNORE_DIRS = new Set([
   '.turbo',
   '.idea',
   '.vscode',
+  // 仓库里的发布/营销产物不是知识文档，索引了只会污染注入
+  'launch',
+  '_publish',
+  'tmp',
+  'logs',
 ])
 
 const MD_EXTS = new Set(['md', 'mdx', 'markdown'])
@@ -190,8 +195,11 @@ export class DocumentService {
     return this.listRoots()
   }
 
-  /** 移除索引目录：只解除监听，documents 记录保留（契约 §3） */
-  removeRoot(dir) {
+  /**
+   * 移除索引目录。默认同时删除该目录下已索引的文档（含切片与关联），
+   * 否则它们仍会出现在检索与逐轮注入里；需要保留记录时显式传 keepDocuments。
+   */
+  removeRoot(dir, { keepDocuments = false } = {}) {
     const raw = typeof dir === 'string' ? dir.trim() : ''
     if (!raw) throw new Error('索引目录不能为空')
     const abs = path.resolve(raw)
@@ -199,6 +207,26 @@ export class DocumentService {
       this.db.prepare('DELETE FROM doc_roots WHERE path = ?').run(abs)
     } catch {
       // 幂等：没这个 root 也不报错
+    }
+    if (!keepDocuments) {
+      const ids = this.db
+        .prepare('SELECT id FROM documents WHERE root_path = ?')
+        .all(abs)
+        .map((row) => String(row.id))
+      if (ids.length > 0) {
+        const dropChunks = this.db.prepare('DELETE FROM document_chunks WHERE document_id = ?')
+        const dropLinks = this.db.prepare('DELETE FROM doc_memory_links WHERE doc_id = ?')
+        const dropConflicts = this.db.prepare('DELETE FROM conflicts WHERE memory_b = ?')
+        const dropDoc = this.db.prepare('DELETE FROM documents WHERE id = ?')
+        tx(this.store, () => {
+          for (const id of ids) {
+            dropChunks.run(id)
+            dropLinks.run(id)
+            dropConflicts.run(`doc:${id}`)
+            dropDoc.run(id)
+          }
+        })
+      }
     }
     return this.listRoots()
   }
@@ -379,7 +407,7 @@ export class DocumentService {
 
   /**
    * 重新索引单个文件（面板「重新索引」/ scan 内部使用）。
-   * @returns {{document: object, chunks: object[]}}
+   * @returns object with document and chunks[]
    */
   reindexFile(absPath, opts = {}) {
     const abs = path.resolve(String(absPath || ''))
@@ -599,7 +627,7 @@ export class DocumentService {
    * 之前整句当 FTS 短语 + LIKE 整串匹配，导致「安装依赖怎么跑」0 命中；
    * 现在逐轮注入用用户原话也能召回「📚 相关文档」层。
    *
-   * @returns {{chunk: object, document: object, score: number}[]}
+   * @returns array of {chunk, document, score}
    */
   search({ q, scope, limit = 20, useVector = true } = {}) {
     const query = String(q ?? '').trim()

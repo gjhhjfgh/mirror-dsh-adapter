@@ -52,17 +52,34 @@ export const SECTION_META = {
 
 /**
  * 统一检索。
- * @param {{memories: object, documents: object, query?: string, scope?: string, tokenBudget?: number,
- *          residentPreferences?: number}} input
+ * @param input object:
+ *   memories, documents, query?, scope?, tokenBudget?, residentPreferences?
  *   residentPreferences：常驻偏好条数（默认 0=关闭）。>0 时不管 query 是否命中，
  *   都按裁决分取 top N 的 preference/decision 进「偏好与决策」层——「用户的使用习惯」
  *   本来就该稳定在场，而不是取决于他这句话碰巧提到了什么词。
- * @returns {{ironRules: object[], documents: object[], preferences: object[], decisions: object[], pitfalls: object[], fuzzy: object[]}}
+ * @returns object with ironRules/documents/preferences/decisions/pitfalls/fuzzy arrays
  */
 /** 常驻层（铁律 / 常驻偏好）默认只收「用户自己说的、或用户确认过的」。
  *  AI 推断（inferred）与导入（imported）的内容只能靠检索命中进入，不能永久占用常驻预算——
  *  否则蒸馏/包导入会把 AI 的措辞变成"你的铁律"。 */
 export const DEFAULT_INJECT_AUTHORITIES = ['user_explicit', 'user_confirmed']
+
+/** 项目作用域的可匹配片段（project:mirror-plugin → mirror-plugin / mirror / plugin）。 */
+function projectTokens(scopeText) {
+  const raw = String(scopeText ?? '')
+  if (!raw.startsWith('project:')) return null
+  const name = raw.slice('project:'.length).trim().toLowerCase()
+  if (!name) return null
+  return [name, ...name.split(/[\s_\-./]+/).filter(Boolean)]
+}
+
+/** 当前查询没提到这个项目时，项目作用域的记忆不该注入别的工作。 */
+function projectRelevant(memory, queryText) {
+  const tokens = projectTokens(memory?.scope)
+  if (!tokens) return true
+  const hay = String(queryText ?? '').toLowerCase()
+  return tokens.some((token) => token.length >= 2 && hay.includes(token))
+}
 
 export function retrieve({
   memories,
@@ -113,7 +130,10 @@ export function retrieve({
   for (const memory of hits) byId.set(memory.id, memory)
   for (const memory of ironRules) byId.set(memory.id, memory)
 
-  const pool = [...byId.values()].filter(isUsableMemory)
+  const filterByProject = Boolean(q) && (!scope || scope === 'all')
+  const pool = [...byId.values()]
+    .filter(isUsableMemory)
+    .filter((memory) => !filterByProject || projectRelevant(memory, q))
   // 排序：铁律按裁决分（权威+新鲜+置信）；其余保持检索相关度顺序
   const sortedIron = pool
     .filter((m) => m.category === 'iron_rule' && mayInjectAlways(m))
@@ -148,6 +168,7 @@ export function retrieve({
       const active = memories.list({ status: 'active', scope, limit: 200 }) || []
       const ranked = active
         .filter((m) => (m.category === 'preference' || m.category === 'decision') && mayInjectAlways(m))
+        .filter((m) => !filterByProject || projectRelevant(m, q))
         .sort((a, b) => scoreOf(memories, b) - scoreOf(memories, a))
       for (const memory of ranked) {
         if (resident.length >= residentLimit) break
@@ -190,7 +211,7 @@ export function retrieve({
 
 /**
  * 组装注入文本（文档 §4.3 的格式）。
- * @returns {{text: string, sections: {name: string, label: string, tokens: number, count: number}[], token_count: number}}
+ * @returns object with text, sections[], and token_count
  */
 export function buildInjection(result = {}) {
   const sections = []
